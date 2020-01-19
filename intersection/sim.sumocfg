@@ -4,7 +4,7 @@
 
     <input>
         <net-file value="intersection.net.xml"/>
-        <route-files value="trips.trips.xml"/>
+        <route-files value="routes.rou.xml"/>
     </input>
 
     <time>
@@ -14,4 +14,9 @@
     <processing>
         <time-to-teleport value="-1"/>
     </processing>
+
+   <gui_only>
+        <gui-settings-file value="default.view.xml"/>
+    </gui_only>
+
 </configuration>
