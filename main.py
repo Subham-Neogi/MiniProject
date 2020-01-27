@@ -14,8 +14,10 @@ except ImportError:
         "please declare environment variable 'SUMO_HOME' as the root directory of your sumo installation (it should contain folders 'bin', 'tools' and 'docs')")
 
 import matplotlib.pyplot as plt
+import pandas as pd
 from TrafficGenerator import TrafficGenerator
 from SimRunner import SimRunner
+plt.style.use('dark_background')
 
 # sumo things - we need to import python modules from the $SUMO_HOME/tools directory
 if 'SUMO_HOME' in os.environ:
@@ -62,6 +64,89 @@ def save_graphs(sim_runner, plot_path):
     with open(plot_path + 'queue_data.txt', "w") as file:
         for item in data:
                 file.write("%s\n" % item)
+    
+    # Total wait till cycle k
+    data = sim_runner.total_wait_time_store
+    plt.plot(list(data.keys()),list(data.values()))
+    plt.ylabel("Total wait")
+    plt.xlabel("cycle")
+    plt.margins(0)
+    min_val = min(data.values())
+    max_val = max(data.values())
+    plt.ylim(min_val - 0.05 * min_val, max_val + 0.05 * max_val)
+    fig = plt.gcf()
+    fig.set_size_inches(20, 11.25)
+    fig.savefig(plot_path + 'cycles.png', dpi=96)
+    plt.close("all")
+    with open(plot_path + 'cycle_wait_data.txt', "w") as file:
+        for k,v in data.items():
+                file.write("%s %s\n" % (k,v))
+
+    
+    # green duration
+    data=sim_runner.green_duration_store
+    ax = pd.DataFrame(sim_runner.green_duration_store).plot(kind='bar')
+    ax.figure.set_size_inches(20, 11.25)
+    ax.figure.savefig(plot_path + 'green_duration.png', dpi=96)
+    plt.close("all")
+    with open(plot_path + 'green_duration_data.txt', "w") as file:
+        for k in data:
+                file.write("%s \n" % str(k))
+    
+    # mu plot
+    data = sim_runner.mu_store
+    plt.plot(data)
+    plt.ylabel(r"$\mu$")
+    plt.xlabel("cycles")
+    plt.margins(0)
+    min_val = min(data)
+    max_val = max(data)
+    plt.ylim(min_val - 0.05 * min_val, max_val + 0.05 * max_val)
+    fig = plt.gcf()
+    fig.set_size_inches(20, 11.25)
+    fig.savefig(plot_path + 'mu.png', dpi=96)
+    plt.close("all")
+    with open(plot_path + 'mu.txt', "w") as file:
+        for item in data:
+                file.write("%s\n" % item)
+
+    # sigma plot
+    data = sim_runner.sigma_store
+    plt.plot(data)
+    plt.ylabel(r"$\sigma$")
+    plt.xlabel("cycles")
+    plt.margins(0)
+    min_val = min(data)
+    max_val = max(data)
+    plt.ylim(min_val - 0.05 * min_val, max_val + 0.05 * max_val)
+    fig = plt.gcf()
+    fig.set_size_inches(20, 11.25)
+    fig.savefig(plot_path + 'sigma.png', dpi=96)
+    plt.close("all")
+    with open(plot_path + 'sigma.txt', "w") as file:
+        for item in data:
+                file.write("%s\n" % item)
+    
+    # cycle duration plot
+    data = sim_runner.cycle_duration
+    plt.plot(data)
+    plt.ylabel("Cycle duration")
+    plt.xlabel("cycles")
+    plt.margins(0)
+    min_val = min(data)
+    max_val = max(data)
+    plt.ylim(min_val - 0.05 * min_val, max_val + 0.05 * max_val)
+    fig = plt.gcf()
+    fig.set_size_inches(20, 11.25)
+    fig.savefig(plot_path + 'cycle_duration.png', dpi=96)
+    plt.close("all")
+    with open(plot_path + 'cycle_duration.txt', "w") as file:
+        for item in data:
+                file.write("%s\n" % item)
+    
+    
+
+    
 
 
 if __name__ == "__main__":
@@ -70,9 +155,9 @@ if __name__ == "__main__":
     gui = False
 
     # attributes of the simulation
-    max_steps = 5400  
-    green_duration = 10
-    yellow_duration = 4
+    max_steps = 50000  
+    green_duration = {0:10,1:10,2:10,3:10}
+    yellow_duration = 1000
     path = "./results/" 
 
     # setting the cmd mode or the visual mode
@@ -84,7 +169,6 @@ if __name__ == "__main__":
     # initializations
     traffic_gen = TrafficGenerator(max_steps)
     sumoCmd = [sumoBinary, "-c", "intersection/sim.sumocfg", "--no-step-log", "true", "--waiting-time-memory", str(max_steps)]
-
     
     sim_runner = SimRunner(traffic_gen, max_steps, green_duration, yellow_duration, sumoCmd)
 

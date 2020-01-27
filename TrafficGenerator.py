@@ -4,14 +4,14 @@ import math
 # HANDLE THE GENERATION OF VEHICLES
 class TrafficGenerator:
     def __init__(self, max_steps):
-        self._n_cars_generated = 1000  # how many cars per episode
+        self._n_cars_generated = 4000  # how many cars per episode
         self._max_steps = max_steps
 
     # generation of routes of cars
     def generate_routefile(self, seed):
         np.random.seed(seed)  # make tests reproducible
 
-        # the generation of cars is distributed according to a weibull distribution
+        # the generation of cars is distributed according to a poisson distribution
         timings = np.random.poisson(self._max_steps, self._n_cars_generated)
         timings = np.sort(timings)
 
