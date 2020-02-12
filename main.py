@@ -33,8 +33,8 @@ def save_graphs(sim_runner, plot_path):
 
     # cumulative wait
     data = sim_runner.cumulative_wait_store
-    plt.plot(list(data.keys()),list(data.values()))
-    plt.ylabel("Cumulative delay (s)")
+    plt.plot(list(data.keys()),list(data.values()),label="Algorithm")
+    plt.ylabel("Cumulative delay per vehicle (s)")
     plt.xlabel("Steps")
     plt.margins(0)
     min_val = min(data.values())
@@ -47,7 +47,20 @@ def save_graphs(sim_runner, plot_path):
     with open(plot_path + 'delay_data.txt', "w") as file:
         for k,v in data.items():
                 file.write("%s %s\n" % (k,v))
-
+    
+    #No.of cars
+    data = sim_runner.no_of_cars
+    plt.plot(list(data.keys()),list(data.values()))
+    plt.ylabel("No. of vehicle (s)")
+    plt.xlabel("Steps")
+    plt.margins(0)
+    fig = plt.gcf()
+    fig.set_size_inches(20, 11.25)
+    fig.savefig(plot_path + 'cars_number.png', dpi=96)
+    plt.close("all")
+    with open(plot_path + 'cars_number.txt', "w") as file:
+        for k,v in data.items():
+                file.write("%s %s\n" % (k,v))
     # average number of cars in queue
     data = sim_runner.avg_intersection_queue_store
     plt.plot(data)
@@ -67,7 +80,7 @@ def save_graphs(sim_runner, plot_path):
     
     # Total wait till cycle k
     data = sim_runner.total_wait_time_store
-    plt.plot(list(data.keys()),list(data.values()))
+    plt.plot(list(data.keys()),list(data.values()),label="algorithm")
     plt.ylabel("Total wait")
     plt.xlabel("cycle")
     plt.margins(0)
@@ -85,9 +98,16 @@ def save_graphs(sim_runner, plot_path):
     
     # green duration
     data=sim_runner.green_duration_store
-    ax = pd.DataFrame(sim_runner.green_duration_store).plot(kind='bar')
-    ax.figure.set_size_inches(20, 11.25)
-    ax.figure.savefig(plot_path + 'green_duration.png', dpi=96)
+    plt.plot(range(len(data)),data,label="algorithm")
+    plt.ylabel("Total green duration")
+    plt.xlabel("cycle")
+    plt.margins(0)
+    min_val = min(data)
+    max_val = max(data)
+    plt.ylim(min_val - 0.05 * min_val, max_val + 0.05 * max_val)
+    fig = plt.gcf()
+    fig.set_size_inches(20, 11.25)
+    fig.savefig(plot_path + 'green_duration.png', dpi=96)
     plt.close("all")
     with open(plot_path + 'green_duration_data.txt', "w") as file:
         for k in data:
@@ -95,7 +115,7 @@ def save_graphs(sim_runner, plot_path):
     
     # mu plot
     data = sim_runner.mu_store
-    plt.plot(data)
+    plt.plot(data,label="algorithm")
     plt.ylabel(r"$\mu$")
     plt.xlabel("cycles")
     plt.margins(0)
@@ -112,7 +132,7 @@ def save_graphs(sim_runner, plot_path):
 
     # sigma plot
     data = sim_runner.sigma_store
-    plt.plot(data)
+    plt.plot(data,label="algorithm")
     plt.ylabel(r"$\sigma$")
     plt.xlabel("cycles")
     plt.margins(0)
@@ -129,7 +149,7 @@ def save_graphs(sim_runner, plot_path):
     
     # cycle duration plot
     data = sim_runner.cycle_duration
-    plt.plot(data)
+    plt.plot(data,label="algorithm")
     plt.ylabel("Cycle duration")
     plt.xlabel("cycles")
     plt.margins(0)
@@ -144,6 +164,35 @@ def save_graphs(sim_runner, plot_path):
         for item in data:
                 file.write("%s\n" % item)
     
+    #vs no. of cars
+    data = sim_runner.total_wait_vs_cars
+    plt.plot(list(data.keys()),list(data.values()))
+    plt.ylabel("Total wait")
+    plt.xlabel("No.of cars")
+    plt.margins(0)
+    #min_val = min(data.values())
+    #max_val = max(data.values())
+    #plt.ylim(min_val - 0.05 * min_val, max_val + 0.05 * max_val)
+    fig = plt.gcf()
+    fig.set_size_inches(20, 11.25)
+    fig.savefig(plot_path + 'total_wait_vs_cars.png', dpi=96)
+    plt.close("all")
+    with open(plot_path + 'total_wait_vs_cars.txt', "w") as file:
+        for k,v in data.items():
+                file.write("%s %s\n" % (k,v))
+
+    data = sim_runner.wait_time_vs_car
+    plt.plot(list(data.keys()),list(data.values()))
+    plt.ylabel("Current waiting time")
+    plt.xlabel("No. of cars")
+    plt.margins(0)
+    fig = plt.gcf()
+    fig.set_size_inches(20, 11.25)
+    fig.savefig(plot_path + 'current_wait_vs_car.png', dpi=96)
+    plt.close("all")
+    with open(plot_path + 'current_wait_vs_cars.txt', "w") as file:
+        for k,v in data.items():
+                file.write("%s %s\n" % (k,v))
     
 
     
@@ -155,9 +204,9 @@ if __name__ == "__main__":
     gui = False
 
     # attributes of the simulation
-    max_steps = 50000  
-    green_duration = {0:10,1:10,2:10,3:10}
-    yellow_duration = 1000
+    max_steps = 8000 
+    green_duration = {0:20,1:20,2:20,3:20}
+    yellow_duration = 10
     path = "./results/" 
 
     # setting the cmd mode or the visual mode
@@ -171,7 +220,7 @@ if __name__ == "__main__":
     sumoCmd = [sumoBinary, "-c", "intersection/sim.sumocfg", "--no-step-log", "true", "--waiting-time-memory", str(max_steps)]
     
     sim_runner = SimRunner(traffic_gen, max_steps, green_duration, yellow_duration, sumoCmd)
-
+    
     sim_runner.run()
 
     save_graphs(sim_runner,path)

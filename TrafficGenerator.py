@@ -4,15 +4,15 @@ import math
 # HANDLE THE GENERATION OF VEHICLES
 class TrafficGenerator:
     def __init__(self, max_steps):
-        self._n_cars_generated = 4000  # how many cars per episode
+        self._n_cars_generated = 1000  # how many cars
         self._max_steps = max_steps
 
     # generation of routes of cars
     def generate_routefile(self, seed):
-        np.random.seed(seed)  # make tests reproducible
-
+        #np.random.seed(seed)  # make tests reproducible
+        rng = np.random.default_rng(seed)
         # the generation of cars is distributed according to a poisson distribution
-        timings = np.random.poisson(self._max_steps, self._n_cars_generated)
+        timings = rng.poisson(self._max_steps/4, self._n_cars_generated)
         timings = np.sort(timings)
 
         # reshape the distribution to fit the interval 0:max_steps
@@ -46,7 +46,7 @@ class TrafficGenerator:
 
             for car_counter, step in enumerate(car_gen_steps):
                 straight_or_turn = np.random.uniform()
-                if straight_or_turn < 0.75:  # choose direction: straight or turn - 75% of times the car goes straight
+                if straight_or_turn < 0.70:  # choose direction: straight or turn - 70% of times the car goes straight
                     route_straight = np.random.randint(1, 5)  # choose a random source & destination
                     if route_straight == 1:
                         print('    <vehicle id="W_E_%i" type="standard_car" route="W_E" depart="%s" departLane="random" departSpeed="10" />' % (car_counter, step), file=routes)
@@ -56,7 +56,7 @@ class TrafficGenerator:
                         print('    <vehicle id="N_S_%i" type="standard_car" route="N_S" depart="%s" departLane="random" departSpeed="10" />' % (car_counter, step), file=routes)
                     else:
                         print('    <vehicle id="S_N_%i" type="standard_car" route="S_N" depart="%s" departLane="random" departSpeed="10" />' % (car_counter, step), file=routes)
-                else:  # car that turn -25% of the time the car turns
+                else:  # car that turn -30% of the time the car turns
                     route_turn = np.random.randint(1, 9)  # choose random source source & destination
                     if route_turn == 1:
                         print('    <vehicle id="W_N_%i" type="standard_car" route="W_N" depart="%s" departLane="random" departSpeed="10" />' % (car_counter, step), file=routes)
